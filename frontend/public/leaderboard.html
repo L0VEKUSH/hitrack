@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>HiTrack Leaderboard</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+margin:0;
+}
+
+header{
+background:#020617;
+padding:15px;
+font-size:26px;
+}
+
+.panel{
+background:#1e293b;
+width:1000px;
+margin:20px auto;
+padding:20px;
+border-radius:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #334155;
+}
+
+th{
+background:#020617;
+}
+
+.gold{color:gold}
+.silver{color:silver}
+.bronze{color:#cd7f32}
+
+</style>
+
+</head>
+
+<body>
+
+<header>🏏 HiTrack Leaderboard</header>
+<div class="panel">
+
+<h2>🏆 Points Table</h2>
+
+<table id="pointsTable">
+<tr>
+<th>Team</th>
+<th>Matches</th>
+<th>Wins</th>
+<th>Loss</th>
+<th>Points</th>
+</tr>
+</table>
+
+</div>
+<div class="panel">
+
+<h2>Top Batsmen</h2>
+
+<table id="batLeader">
+
+<tr>
+<th>Rank</th>
+<th>Name</th>
+<th>Runs</th>
+<th>Balls</th>
+<th>4s</th>
+<th>6s</th>
+<th>SR</th>
+</tr>
+
+</table>
+
+</div>
+
+<div class="panel">
+
+<h2>Top Bowlers</h2>
+
+<table id="bowlLeader">
+
+<tr>
+<th>Rank</th>
+<th>Name</th>
+<th>Wickets</th>
+<th>Runs</th>
+<th>Overs</th>
+<th>Economy</th>
+</tr>
+
+</table>
+
+</div>
+
+<div class="panel">
+
+<h2>Match History</h2>
+
+<table id="matchHistory">
+
+<tr>
+<th>Match</th>
+<th>Score</th>
+<th>Overs</th>
+</tr>
+
+</table>
+
+</div>
+
+<script>
+async function loadLeaderboard(){
+
+// 🔥 GET ALL MATCHES FROM SERVER
+const res = await fetch("/matches")
+// =========================
+// POINTS TABLE
+// =========================
+
+const ptsRes = await fetch("/points-table")
+const pts = await ptsRes.json()
+
+let ptsTable = document.getElementById("pointsTable")
+
+ptsTable.innerHTML = `
+<tr>
+<th>Team</th><th>Matches</th>
+<th>Wins</th><th>Loss</th><th>Points</th>
+</tr>
+`
+
+pts.sort((a,b)=>b.points-a.points)
+
+pts.forEach((t,i)=>{
+
+let medal = i==0?"🥇":i==1?"🥈":i==2?"🥉":""
+
+ptsTable.innerHTML += `
+<tr>
+<td>${medal} ${t.name}</td>
+<td>${t.matches}</td>
+<td>${t.wins}</td>
+<td>${t.loss}</td>
+<td>${t.points}</td>
+</tr>
+`
+
+})
+const matches = await res.json()
+if(!matches.length){
+  document.body.innerHTML = "<h2>No matches yet</h2>"
+  return
+}
+let batsmenStats = {}
+let bowlerStats = {}
+
+// =========================
+// PROCESS DATA
+// =========================
+
+matches.forEach(match=>{
+
+// batsmen
+(match.batsmen || []).forEach(b=>{
+
+if(!batsmenStats[b.name]){
+batsmenStats[b.name]={
+runs:0,balls:0,fours:0,sixes:0
+}
+}
+
+batsmenStats[b.name].runs += b.runs
+batsmenStats[b.name].balls += b.balls
+batsmenStats[b.name].fours += b.fours
+batsmenStats[b.name].sixes += b.sixes
+
+})
+
+// bowlers
+(match.bowlers || []).forEach(b=>{
+
+if(!bowlerStats[b.name]){
+bowlerStats[b.name]={
+wkts:0,runs:0,balls:0
+}
+}
+
+bowlerStats[b.name].wkts += b.wickets
+bowlerStats[b.name].runs += b.runs
+bowlerStats[b.name].balls += b.balls
+
+})
+
+})
+
+// =========================
+// RENDER BATSMEN
+// =========================
+
+let batTable = document.getElementById("batLeader")
+batTable.innerHTML = `
+<tr>
+<th>Rank</th><th>Name</th><th>Runs</th>
+<th>Balls</th><th>4s</th><th>6s</th><th>SR</th>
+</tr>
+`
+
+let bats = Object.entries(batsmenStats)
+bats.sort((a,b)=>b[1].runs-a[1].runs)
+
+bats.forEach((p,i)=>{
+
+let s = p[1]
+let sr = s.balls ? ((s.runs/s.balls)*100).toFixed(2) : 0
+
+let cls = i==0?"gold":i==1?"silver":i==2?"bronze":""
+
+batTable.innerHTML += `
+<tr class="${cls}">
+<td>${i+1}</td>
+<td>${p[0]}</td>
+<td>${s.runs}</td>
+<td>${s.balls}</td>
+<td>${s.fours}</td>
+<td>${s.sixes}</td>
+<td>${sr}</td>
+</tr>
+`
+
+})
+
+// =========================
+// RENDER BOWLERS
+// =========================
+
+let bowlTable = document.getElementById("bowlLeader")
+bowlTable.innerHTML = `
+<tr>
+<th>Rank</th><th>Name</th><th>Wickets</th>
+<th>Runs</th><th>Overs</th><th>Eco</th>
+</tr>
+`
+
+let bowls = Object.entries(bowlerStats)
+bowls.sort((a,b)=>b[1].wkts-a[1].wkts)
+
+bowls.forEach((p,i)=>{
+
+let s = p[1]
+let overs = Math.floor(s.balls/6)+"."+(s.balls%6)
+let eco = (s.runs/(s.balls/6 || 1)).toFixed(2)
+
+let cls = i==0?"gold":i==1?"silver":i==2?"bronze":""
+
+bowlTable.innerHTML += `
+<tr class="${cls}">
+<td>${i+1}</td>
+<td>${p[0]}</td>
+<td>${s.wkts}</td>
+<td>${s.runs}</td>
+<td>${overs}</td>
+<td>${eco}</td>
+</tr>
+`
+
+})
+
+// =========================
+// MATCH HISTORY
+// =========================
+
+let matchTable = document.getElementById("matchHistory")
+matchTable.innerHTML = `
+<tr><th>Match</th><th>Score</th><th>Overs</th></tr>
+`
+
+matches.slice(0,5).forEach((m,i)=>{
+
+let overs = Math.floor(m.balls/6)+"."+(m.balls%6)
+
+matchTable.innerHTML += `
+<tr>
+<td>${m.team1} vs ${m.team2}</td>
+<td>${m.runs}/${m.wickets}</td>
+<td>${overs}</td>
+</tr>
+`
+
+})
+
+}
+
+// 🔁 AUTO REFRESH
+setInterval(loadLeaderboard,5000)
+
+loadLeaderboard()
+</script>
+
+</body>
+</html>

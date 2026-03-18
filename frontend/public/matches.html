@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Matches</title>
+
+</head>
+
+<body>
+
+<h1>Matches</h1>
+
+<ul id="list"></ul>
+
+<script>
+
+async function load(){
+
+let res=await fetch("/matches")
+
+let matches=await res.json()
+
+let html=""
+
+matches.forEach(m=>{
+
+html+=`<li>
+
+<a href="match.html?id=${m._id}">
+
+${m.team1} vs ${m.team2}
+
+</a>
+
+</li>`
+
+})
+
+document.getElementById("list").innerHTML=html
+
+}
+
+load()
+
+</script>
+
+</body>
+</html>

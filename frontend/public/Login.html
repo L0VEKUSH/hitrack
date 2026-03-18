@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>HiTrack Login</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+/* Background */
+#animeGirl{
+position:fixed;
+font-size:70px;
+left:10%;
+top:60%;
+z-index:1;
+transition:transform 1s ease, left 6s linear, top 6s linear;
+pointer-events:none;
+}
+
+#sparkles{
+position:fixed;
+pointer-events:none;
+font-size:20px;
+color:#ffd700;
+}
+
+.spark{
+position:absolute;
+animation:spark 1s linear forwards;
+}
+
+@keyframes spark{
+0%{
+opacity:1;
+transform:translateY(0) scale(1);
+}
+100%{
+opacity:0;
+transform:translateY(-40px) scale(0.5);
+}
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#020617;
+overflow:hidden;
+color:white;
+}
+
+/* animated grid background */
+
+body::before{
+
+content:"";
+position:absolute;
+width:200%;
+height:200%;
+
+background:
+linear-gradient(#00ff88 1px,transparent 1px),
+linear-gradient(90deg,#00ff88 1px,transparent 1px);
+
+background-size:80px 80px;
+
+opacity:0.05;
+
+animation:gridMove 20s linear infinite;
+
+}
+
+@keyframes gridMove{
+
+0%{
+transform:translateY(0);
+}
+
+100%{
+transform:translateY(-80px);
+}
+
+}
+
+/* Login Card */
+
+.card{
+
+position:relative;
+
+width:340px;
+
+padding:40px;
+
+background:#0f172a;
+
+border-radius:12px;
+
+box-shadow:
+0 0 20px #00ff88,
+0 0 40px rgba(0,255,136,0.2);
+
+text-align:center;
+
+z-index:2;
+
+}
+
+/* Neon border */
+
+.card::before{
+
+content:"";
+
+position:absolute;
+
+top:-2px;
+left:-2px;
+right:-2px;
+bottom:-2px;
+
+border-radius:14px;
+
+background:linear-gradient(
+45deg,
+#00ff88,
+#22c55e,
+#38bdf8,
+#00ff88
+);
+
+background-size:400%;
+
+filter:blur(6px);
+
+z-index:-1;
+
+animation:borderMove 6s linear infinite;
+
+}
+
+@keyframes borderMove{
+
+0%{background-position:0%}
+100%{background-position:400%}
+
+}
+
+/* rotating cricket ball */
+
+.ball{
+
+font-size:45px;
+
+margin-bottom:10px;
+
+display:inline-block;
+
+animation:spin 5s linear infinite;
+
+}
+
+@keyframes spin{
+
+0%{transform:rotateY(0deg)}
+100%{transform:rotateY(360deg)}
+
+}
+
+/* heading */
+
+h1{
+
+margin-bottom:20px;
+
+letter-spacing:2px;
+
+}
+
+/* Inputs */
+
+input{
+
+width:100%;
+
+padding:12px;
+
+margin:10px 0;
+
+border:none;
+
+border-radius:6px;
+
+background:#020617;
+
+color:white;
+
+outline:none;
+
+transition:0.3s;
+
+}
+
+input:focus{
+
+box-shadow:0 0 10px #00ff88;
+
+}
+
+/* Button */
+
+button{
+
+width:100%;
+
+padding:12px;
+
+margin-top:15px;
+
+border:none;
+
+border-radius:6px;
+
+background:#00ff88;
+
+color:#022c22;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:0.3s;
+
+}
+
+button:hover{
+
+transform:scale(1.05);
+
+box-shadow:0 0 20px #00ff88;
+
+}
+
+/* messages */
+
+#msg{
+
+margin-top:12px;
+
+font-weight:bold;
+
+min-height:20px;
+
+}
+
+
+.error{
+color:#ff4d4d;
+}
+
+.success{
+color:#00ff88;
+}
+
+/* floating cricket balls */
+
+.cricket{
+
+position:absolute;
+
+font-size:60px;
+
+opacity:0.05;
+
+animation:floatBall 15s linear infinite;
+
+}
+
+@keyframes floatBall{
+
+0%{
+transform:translateY(100vh) rotate(0deg);
+}
+
+100%{
+transform:translateY(-100vh) rotate(360deg);
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+<div id="animeGirl"> </div>
+<div id="sparkles"></div>
+<div class="cricket">🏏</div>
+
+<div class="card">
+
+<div class="ball">🏏</div>
+
+<h1>HiTrack Login</h1>
+
+<input id="email" placeholder="Email">
+
+<input id="pass" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<p id="msg"></p>
+
+</div>
+
+<script>
+
+const girl=document.getElementById("animeGirl")
+const sparkBox=document.getElementById("sparkles")
+
+// move anime girl randomly
+function moveGirl(){
+
+let x=Math.random()*80
+let y=Math.random()*70
+
+girl.style.left=x+"%"
+girl.style.top=y+"%"
+
+girl.style.transform="rotate("+((Math.random()*40)-20)+"deg)"
+
+}
+
+setInterval(moveGirl,5000)
+
+
+// sparkle effect
+function createSparkle(){
+
+const spark=document.createElement("div")
+spark.className="spark"
+spark.innerText="✨"
+
+spark.style.left=girl.offsetLeft+40+"px"
+spark.style.top=girl.offsetTop+40+"px"
+
+sparkBox.appendChild(spark)
+
+setTimeout(()=>{
+spark.remove()
+},1000)
+
+}
+
+setInterval(createSparkle,500)
+
+
+// LOGIN FUNCTION
+async function login(){
+
+const email=document.getElementById("email").value
+const password=document.getElementById("pass").value
+const msg=document.getElementById("msg")
+
+msg.innerText="Checking..."
+msg.className=""
+
+try{
+
+// 🔥 AUTO DETECT ADMIN
+let url = email.includes("admin") 
+  ? "/admin/login" 
+  : "/user/login"
+
+const res = await fetch(url,{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+email,
+password
+})
+
+})
+
+const data = await res.json()
+
+if(data.success){
+
+msg.className="success"
+msg.innerText="Login successful"
+
+girl.innerText="🎉"
+girl.style.transform="scale(1.5) rotate(360deg)"
+
+setTimeout(()=>{
+girl.innerText="🏏"
+},1500)
+
+// save login
+localStorage.setItem("role", data.role)
+localStorage.setItem("user", data.username || email)
+
+setTimeout(()=>{
+
+if(data.role==="admin"){
+window.location.href="admin.html"
+}else{
+window.location.href="viewer.html"
+}
+
+},1000)
+
+}else{
+
+msg.className="error"
+msg.innerText=data.message || "Login failed"
+
+}
+
+}catch(err){
+
+msg.className="error"
+msg.innerText="Server error"
+
+}
+
+}
+</script>
+
+</body>
+</html>

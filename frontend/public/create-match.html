@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Create Match</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+form{
+margin-top:50px;
+}
+
+input{
+padding:10px;
+margin:10px;
+width:200px;
+}
+
+button{
+padding:10px 20px;
+background:#009270;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Create New Match</h1>
+
+<form id="form">
+
+<input type="text" id="team1" placeholder="Team 1">
+
+<input type="text" id="team2" placeholder="Team 2">
+
+<button>Create Match</button>
+
+</form>
+
+<script>
+
+document.getElementById("form").onsubmit=async(e)=>{
+
+e.preventDefault()
+
+let team1=document.getElementById("team1").value
+let team2=document.getElementById("team2").value
+
+await fetch("/createMatch",{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({team1,team2})
+
+})
+
+alert("Match Created")
+
+}
+
+</script>
+
+</body>
+</html>

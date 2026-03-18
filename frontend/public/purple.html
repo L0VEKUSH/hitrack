@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Purple Cap</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+width:60%;
+background:#1e293b;
+}
+
+th,td{
+padding:10px;
+border:1px solid #334155;
+}
+
+th{
+background:#8e44ad;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🟣 Purple Cap Leaderboard</h1>
+
+<table>
+
+<thead>
+<tr>
+<th>Rank</th>
+<th>Bowler</th>
+<th>Wickets</th>
+</tr>
+</thead>
+
+<tbody id="table"></tbody>
+
+</table>
+
+<script>
+
+async function load(){
+
+let res = await fetch("/purple-cap")
+let players = await res.json()
+
+let html=""
+
+players.forEach((p,i)=>{
+
+html+=`
+<tr>
+<td>${i+1}</td>
+<td>${p.name}</td>
+<td>${p.wkts}</td>
+</tr>
+`
+
+})
+
+document.getElementById("table").innerHTML=html
+
+}
+
+load()
+
+</script>
+
+</body>
+</html>

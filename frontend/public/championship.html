@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HiTrack Championship</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+margin:0;
+}
+
+header{
+background:#020617;
+padding:15px;
+font-size:24px;
+}
+
+.container{
+padding:30px;
+}
+
+ul{
+list-style:none;
+padding:0;
+}
+
+li{
+background:#1e293b;
+margin:15px auto;
+padding:20px;
+width:300px;
+border-radius:10px;
+cursor:pointer;
+transition:0.3s;
+font-size:18px;
+}
+
+li:hover{
+background:#334155;
+transform:scale(1.05);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>🏆 HiTrack Championships</header>
+
+<div class="container">
+
+<ul>
+
+<li onclick="openTournament('ipl')">Championship</li>
+
+<li onclick="openTournament('worldcup')">Matches</li>
+
+<li onclick="openTournament('asiacup')">Tournament</li>
+
+</ul>
+
+</div>
+
+<script>
+
+function openTournament(name){
+
+if(name === "ipl"){
+window.location.href = "/ipl.html"
+}
+
+if(name === "worldcup"){
+window.location.href = "/worldcup.html"
+}
+
+if(name === "asiacup"){
+window.location.href = "/asiacup.html"
+}
+
+}
+
+</script>
+
+</body>
+</html>

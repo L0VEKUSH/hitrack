@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Admin Scoring</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>🏏 HI TRACK ADMIN PANEL</header>
+
+<div class="container">
+
+<div class="card">
+
+<h2 id="teams"></h2>
+
+<div class="score" id="score">
+0/0
+</div>
+
+<p id="overs">Overs: 0</p>
+
+</div>
+
+<div class="card">
+
+<h3>Scoring Buttons</h3>
+
+<div class="grid">
+
+<button onclick="scoreBall('0')">0</button>
+<button onclick="scoreBall('1')">1</button>
+<button onclick="scoreBall('2')">2</button>
+<button onclick="scoreBall('3')">3</button>
+
+<button onclick="scoreBall('4')">4</button>
+<button onclick="scoreBall('6')">6</button>
+
+<button class="wicket" onclick="scoreBall('Wicket')">W</button>
+
+<button onclick="scoreBall('Dot')">Dot</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

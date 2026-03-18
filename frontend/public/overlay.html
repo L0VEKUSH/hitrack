@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Overlay</title>
+
+<style>
+
+body{
+margin:0;
+background:transparent;
+color:white;
+font-family:Arial;
+}
+
+.overlay{
+
+position:absolute;
+bottom:30px;
+left:30px;
+
+background:rgba(0,0,0,0.7);
+
+padding:15px 25px;
+
+border-radius:10px;
+}
+
+#teams{
+font-size:20px;
+}
+
+#score{
+font-size:28px;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="overlay">
+
+<div id="teams"></div>
+
+<div id="score"></div>
+
+<div id="overs"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+const socket = io()
+const id = new URLSearchParams(location.search).get("id")
+
+socket.emit("joinMatch", id)
+
+socket.on("scoreUpdate", m => {
+
+teams.innerText = m.team1 + " vs " + m.team2
+score.innerText = m.runs + "/" + m.wickets
+overs.innerText =
+Math.floor(m.balls/6)+"."+(m.balls%6)
+
+})
+
+</script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HiTrack Live Score</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+margin:0;
+}
+
+.navbar{
+display:flex;
+justify-content:space-between;
+padding:15px 40px;
+background:#020617;
+align-items:center;
+}
+
+.logo{
+font-size:22px;
+font-weight:bold;
+}
+
+.nav-links a{
+margin-left:20px;
+text-decoration:none;
+color:white;
+}
+
+.container{
+padding:30px;
+}
+
+#matches{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+}
+
+.match-card{
+background:#1e293b;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.5);
+}
+
+.match-card h3{
+margin-top:0;
+}
+
+.score{
+font-size:28px;
+font-weight:bold;
+margin:10px 0;
+}
+
+.live{
+background:red;
+padding:4px 8px;
+border-radius:5px;
+font-size:12px;
+}
+
+button{
+padding:8px 15px;
+border:none;
+border-radius:6px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#16a34a;
+}
+
+.rr{
+font-size:14px;
+opacity:0.8;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+
+<header class="top">
+
+<div class="logo">🏏 HiTrack</div>
+
+<div class="menu">
+
+<a href="index.html">Home</a>
+<a href="championship.html">Championship</a>
+<a href="viewer.html">Live Score</a>
+<a href="series.html">Series</a>
+<a href="matches.html">Previous Matches</a>
+<a href="points.html">Points Table</a>
+<a href="info.html">Players</a>
+<a href="login.html">Login</a>
+<a href="signup.html">Signup</a>
+
+</div>
+
+</header>
+</div>
+
+<div class="nav-links">
+
+
+
+</div>
+
+</div>
+
+<div class="container">
+
+<h2>Live Matches</h2>
+
+<div id="matches"></div>
+
+</div>
+
+<script>
+
+function formatOvers(balls){
+
+let o = Math.floor(balls/6)
+let b = balls % 6
+
+return o + "." + b
+
+}
+
+function runRate(runs,balls){
+
+if(balls === 0) return "0.00"
+
+let rr = (runs/(balls/6)).toFixed(2)
+
+return rr
+
+}
+
+async function loadMatches(){
+
+const res = await fetch("/matches")
+const data = await res.json()
+
+const container = document.getElementById("matches")
+
+container.innerHTML = ""
+
+if(data.length === 0){
+
+container.innerHTML = "<p>No Live Matches Right Now</p>"
+return
+
+}
+
+data.forEach(match=>{
+
+let overs = "0.0"
+
+if(match.balls !== undefined){
+
+overs = formatOvers(match.balls)
+
+}
+
+let rr = runRate(match.runs,match.balls)
+
+container.innerHTML += `
+
+<div class="match-card">
+
+<h3>${match.team1} vs ${match.team2}</h3>
+
+<p class="score">
+${match.runs} / ${match.wickets}
+</p>
+
+<p>Overs: ${overs}</p>
+
+<p class="rr">Run Rate: ${rr}</p>
+
+<span class="live">LIVE</span>
+
+<br><br>
+
+<a href="match.html?id=${match._id}">
+<button>View Match</button>
+</a>
+
+</div>
+
+`
+
+})
+
+}
+
+setInterval(loadMatches,3000)
+
+loadMatches()
+
+</script>
+
+</body>
+</html>

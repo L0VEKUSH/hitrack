@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>🏏 HiTrack Live Match</title>
+<style>
+body{
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+  margin:0;
+}
+header{
+  background:#020617;
+  padding:15px;
+  font-size:24px;
+}
+.container{
+  padding:30px;
+}
+.scoreboard{
+  background:#1e293b;
+  padding:25px;
+  border-radius:10px;
+  width:850px;
+  margin:auto;
+}
+.score{
+  font-size:45px;
+  font-weight:bold;
+  margin:10px 0;
+}
+.info{
+  font-size:18px;
+  margin:5px 0;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+  background:#020617;
+}
+th,td{
+  border:1px solid #334155;
+  padding:8px;
+}
+th{
+  background:#009270;
+}
+.striker{
+  color:gold;
+  font-weight:bold;
+}
+.non{
+  color:#60a5fa;
+}
+.balls{
+  margin-top:20px;
+}
+.ball{
+  display:inline-block;
+  background:#009270;
+  color:white;
+  padding:10px;
+  margin:4px;
+  border-radius:50%;
+  font-weight:bold;
+  width:36px;
+}
+.wicket{
+  background:#e74c3c;
+}
+.four{
+  background:#2980b9;
+}
+.six{
+  background:#8e44ad;
+}
+</style>
+</head>
+<body>
+
+<header>
+🏏 HiTrack Live Match
+</header>
+
+<div class="container">
+
+<h2 id="teams">Loading...</h2>
+
+<div class="scoreboard">
+  <div class="score" id="score">0/0</div>
+  <p class="info" id="overs">Overs: 0.0</p>
+  <p class="info" id="runrate">Run Rate: 0.00</p>
+  <p class="info" id="bowler">Bowler: -</p>
+</div>
+
+<h3>Batsmen</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Player</th>
+      <th>R</th>
+      <th>B</th>
+      <th>4s</th>
+      <th>6s</th>
+      <th>SR</th>
+    </tr>
+  </thead>
+  <tbody id="batsmenTable"></tbody>
+</table>
+
+<h3>Bowling</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Bowler</th>
+      <th>Overs</th>
+      <th>Runs</th>
+      <th>Wickets</th>
+      <th>Eco</th>
+    </tr>
+  </thead>
+  <tbody id="bowlerTable"></tbody>
+</table>
+
+<h3>Last Balls</h3>
+<div id="balls" class="balls"></div>
+
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search)
+const matchId = params.get("id")
+
+function oversFormat(balls){
+  let o=Math.floor(balls/6)
+  let b=balls%6
+  return o+"."+b
+}
+
+async function loadMatch(){
+  if(!matchId) return
+
+  try{
+    const res = await fetch("/matches/" + matchId)
+    const match = await res.json()
+    if(!match) return
+
+    // Teams and score
+    document.getElementById("teams").innerText = match.team1 + " vs " + match.team2
+    document.getElementById("score").innerText = match.runs + " / " + match.wickets
+    document.getElementById("overs").innerText = "Overs: " + oversFormat(match.balls)
+    let rr = match.balls>0 ? (match.runs/(match.balls/6)).toFixed(2) : 0
+    document.getElementById("runrate").innerText = "Run Rate: " + rr
+    document.getElementById("bowler").innerText = "Bowler: " + (match.currentBowlerName || '-')
+
+    // Batsmen
+    let batsHTML=""
+    match.batsmen?.forEach((p,i)=>{
+      let sr = p.balls>0 ? ((p.runs/p.balls)*100).toFixed(1) : 0
+      let cls="", star=""
+      if(i===match.striker) { cls="striker"; star="⭐" }
+      else if(i===match.nonStriker) cls="non"
+      batsHTML += `<tr>
+        <td class="${cls}">${star} ${p.name}</td>
+        <td>${p.runs}</td>
+        <td>${p.balls}</td>
+        <td>${p.fours}</td>
+        <td>${p.sixes}</td>
+        <td>${sr}</td>
+      </tr>`
+    })
+    document.getElementById("batsmenTable").innerHTML = batsHTML
+
+    // Bowlers
+    let bowlHTML=""
+    match.bowlers?.forEach(b=>{
+      let o = Math.floor(b.balls/6)
+      let bl = b.balls%6
+      let eco = b.balls>0 ? (b.runs/(b.balls/6)).toFixed(2) : 0
+      let cls = (b.current) ? "currentBowler" : ""
+      bowlHTML += `<tr class="${cls}">
+        <td>${b.name}</td>
+        <td>${o}.${bl}</td>
+        <td>${b.runs}</td>
+        <td>${b.wickets}</td>
+        <td>${eco}</td>
+      </tr>`
+    })
+    document.getElementById("bowlerTable").innerHTML = bowlHTML
+
+    // Last Balls
+    let ballsHTML=""
+    match.history?.slice(-12).forEach(ball=>{
+      let cls="ball"
+      if(ball.event==="W") cls="ball wicket"
+      if(ball.event==="4") cls="ball four"
+      if(ball.event==="6") cls="ball six"
+      ballsHTML += `<span class="${cls}">${ball.event}</span>`
+    })
+    document.getElementById("balls").innerHTML = ballsHTML
+
+  }catch(err){
+    console.log(err)
+  }
+}
+
+// Initial load + auto-refresh every 1.5s
+loadMatch()
+setInterval(loadMatch,1500)
+</script>
+
+</body>
+</html>

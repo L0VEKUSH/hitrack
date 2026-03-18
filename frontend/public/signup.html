@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>HiTrack Signup</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
+color:white;
+overflow:hidden;
+}
+
+/* floating cricket emojis */
+body::before{
+content:"🏏 🏏 🏏 🏏";
+position:absolute;
+font-size:80px;
+opacity:0.05;
+animation:float 20s linear infinite;
+}
+
+@keyframes float{
+0%{transform:translateY(100vh)}
+100%{transform:translateY(-100vh)}
+}
+
+/* Signup Box */
+
+.box{
+
+position:relative;
+width:350px;
+padding:35px;
+
+background:#1e293b;
+
+border-radius:15px;
+
+box-shadow:
+0 0 20px rgba(0,0,0,0.7),
+0 0 40px rgba(34,197,94,0.2);
+
+text-align:center;
+
+animation:fadeIn 0.8s ease;
+
+}
+
+/* glowing border */
+
+.box::before{
+
+content:"";
+position:absolute;
+top:-2px;
+left:-2px;
+right:-2px;
+bottom:-2px;
+
+border-radius:16px;
+
+background:linear-gradient(
+45deg,
+#22c55e,
+#38bdf8,
+#a78bfa,
+#22c55e
+);
+
+background-size:400%;
+
+z-index:-1;
+
+filter:blur(8px);
+
+animation:borderGlow 6s linear infinite;
+
+}
+
+@keyframes borderGlow{
+0%{background-position:0%}
+100%{background-position:400%}
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(25px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.logo{
+font-size:40px;
+margin-bottom:10px;
+animation:bounce 2s infinite;
+}
+
+@keyframes bounce{
+0%,100%{transform:translateY(0)}
+50%{transform:translateY(-6px)}
+}
+
+h1{
+margin-bottom:20px;
+}
+
+/* inputs */
+
+.inputBox{
+position:relative;
+margin:15px 0;
+}
+
+input{
+
+width:100%;
+padding:12px;
+
+border:none;
+border-radius:8px;
+
+background:#0f172a;
+
+color:white;
+
+outline:none;
+
+transition:0.3s;
+
+}
+
+input:focus{
+box-shadow:0 0 10px #22c55e;
+}
+
+/* button */
+
+button{
+
+width:100%;
+padding:12px;
+
+margin-top:15px;
+
+border:none;
+border-radius:8px;
+
+background:linear-gradient(90deg,#22c55e,#4ade80);
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:0.3s;
+
+}
+
+button:hover{
+
+transform:scale(1.05);
+
+box-shadow:0 0 20px #22c55e;
+
+}
+
+button:active{
+transform:scale(0.95);
+}
+
+#strength{
+font-size:13px;
+margin-top:4px;
+}
+
+#msg{
+margin-top:10px;
+font-weight:bold;
+min-height:20px;
+}
+
+.error{
+color:#ef4444;
+}
+
+.success{
+color:#22c55e;
+}
+
+a{
+color:#38bdf8;
+text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<div class="logo">🏏</div>
+
+<h1>HiTrack Signup</h1>
+
+<div class="inputBox">
+<input id="email" type="email" placeholder="Email address">
+</div>
+
+<div class="inputBox">
+<input id="pass" type="password" placeholder="Password" oninput="checkStrength()">
+<div id="strength"></div>
+</div>
+<div class="inputBox">
+<input id="otp" placeholder="Enter OTP">
+</div>
+
+<button onclick="sendOTP()">Send OTP</button>
+<button onclick="verifyOTP()">Verify & Signup</button>
+<button onclick="signup()">Create Account</button>
+
+<p id="msg"></p>
+
+<p style="margin-top:15px">
+Already have an account?
+<a href="login.html">Login</a>
+</p>
+
+</div>
+
+<script src="signup.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "hi-track",
+  "version": "1.0.0",
+  "description": "Live Cricket Scoring System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "express": "^4.22.1",
+    "mongoose": "^9.2.4",
+    "socket.io": "^4.7.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

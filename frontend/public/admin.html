@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HiTrack PRO Admin</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+margin:0;
+}
+
+header{
+background:#020617;
+padding:15px;
+font-size:26px;
+}
+
+.panel{
+background:#1e293b;
+width:1000px;
+margin:20px auto;
+padding:20px;
+border-radius:10px;
+}
+
+button,input,select{
+padding:8px;
+margin:5px;
+border-radius:6px;
+border:none;
+}
+
+button{background:#22c55e;color:white}
+
+.scorebtn{background:#2563eb}
+
+.wicket{background:#ef4444}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+td,th{
+padding:8px;
+border-bottom:1px solid #334155;
+}
+
+.timeline{
+background:#020617;
+padding:10px;
+margin-top:10px;
+font-size:18px;
+letter-spacing:3px;
+}
+.ball{
+display:inline-block;
+width:32px;
+height:32px;
+line-height:32px;
+border-radius:50%;
+margin:3px;
+font-weight:bold;
+animation:pop 0.3s ease;
+}
+
+.run{background:#2563eb;}
+.dot{background:#334155;}
+.four{background:#16a34a;}
+.six{background:#eab308;}
+.wicketBall{background:#ef4444;}
+
+@keyframes pop{
+0%{transform:scale(0)}
+100%{transform:scale(1)}
+}
+
+</style>
+</head>
+<body>
+<div id="batsmanPopup" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+align-items:center;
+justify-content:center;
+">
+
+<div style="
+background:#1e293b;
+padding:25px;
+border-radius:10px;
+width:300px;
+text-align:center;
+">
+
+<h3>New Batsman</h3>
+
+<input id="popupBatsmanName"
+placeholder="Enter batsman name"
+style="width:90%;padding:10px">
+
+<br><br>
+
+<button onclick="confirmNewBatsman()">Add Batsman</button>
+
+</div>
+</div>
+
+
+
+<header>🏏 HiTrack PRO - Admin Panel</header>
+
+
+<div class="panel">
+
+<h2>Create Match</h2>
+
+<input id="team1" placeholder="Team 1">
+<input id="team2" placeholder="Team 2"><br>
+
+<input id="bat1" placeholder="Opening Batsman 1">
+<input id="bat2" placeholder="Opening Batsman 2"><br>
+
+<input id="bowlerInput" placeholder="Opening Bowler"><br>
+
+<button onclick="startMatch()">Start Match</button>
+<button onclick="saveMatch()">Save Match</button>
+<button onclick="loadMatch()">Resume Match</button>
+
+</div>
+<div class="panel">
+
+<h2>Create Tournament</h2>
+
+<input id="tournamentName" placeholder="Tournament Name">
+
+<button onclick="createTournament()">Create Tournament</button>
+
+</div>
+
+
+<div class="panel">
+
+<h2>Create Match</h2>
+
+<select id="tournamentSelect"></select>
+
+<br><br>
+
+<input id="teamA" placeholder="Team A">
+<input id="teamB" placeholder="Team B">
+
+<button onclick="createMatch()">Create Match</button>
+
+</div>
+<div class="panel">
+
+<h2>Tournaments</h2>
+
+<ul id="tournamentList"></ul>
+
+</div>
+
+<div class="panel">
+
+<h2 id="teams"></h2>
+
+<h1>
+<span id="runs">0</span> /
+<span id="wkts">0</span>
+(<span id="overs">0.0</span>)
+</h1>
+
+<div id="partnership">Partnership: 0 (0 balls)</div>
+<div id="runrate">Current RR: 0.00</div>
+<div id="projected">Projected Score: 0</div>
+
+<div class="timeline" id="timeline"></div>
+
+</div>
+
+<div class="panel">
+<h3>Batsmen</h3>
+<table id="batTable"></table>
+</div>
+
+<div class="panel">
+<h3>Bowlers</h3>
+<table id="bowlerTable"></table>
+</div>
+
+<div class="panel">
+
+<h3>Scoring</h3>
+
+<button class="scorebtn" onclick="run(1)">1</button>
+<button class="scorebtn" onclick="run(2)">2</button>
+<button class="scorebtn" onclick="run(3)">3</button>
+<button class="scorebtn" onclick="run(4)">4</button>
+<button class="scorebtn" onclick="run(6)">6</button>
+<button class="scorebtn" onclick="run(0)">Dot</button>
+
+<br><br>
+
+<select id="outType">
+<option>Bowled</option>
+<option>LBW</option>
+<option>Caught</option>
+<option>Run Out</option>
+<option>Stumped</option>
+<option>Hit Wicket</option>
+</select>
+
+<button class="wicket" onclick="wicket()">Wicket</button>
+<button onclick="undoBall()">Undo</button>
+
+</div>
+
+<div class="panel">
+
+<h3>Extras</h3>
+
+<button onclick="extra('wide')">Wide</button>
+<button onclick="extra('noball')">No Ball</button>
+<button onclick="extra('bye')">Bye</button>
+<button onclick="extra('legbye')">Leg Bye</button>
+
+</div>
+
+<div class="panel">
+
+<h3>Next Batsman</h3>
+
+<input id="newbat" placeholder="Enter batsman name">
+<button onclick="addNewBatsman()">Add Batsman</button>
+
+</div>
+
+<div class="panel">
+<button onclick="openViewer()">Open Live Scoreboard</button>
+</div>
+
+<script>
+let partnershipBalls = 0
+let runs=0
+let wickets=0
+let balls=0
+
+let batsmen=[]
+let striker=0
+let nonStriker=1
+
+let bowlers=[]
+let currentBowler=0
+
+let history=[]
+let timeline=[]
+let partnership=0
+let waitingForBatsman=false
+
+function startMatch(){
+
+let t1=document.getElementById("team1").value
+let t2=document.getElementById("team2").value
+
+document.getElementById("teams").innerText=t1+" vs "+t2
+
+addBatsman(document.getElementById("bat1").value)
+addBatsman(document.getElementById("bat2").value)
+
+addBowler(document.getElementById("bowlerInput").value)
+
+updateAll()
+
+}
+
+function addBatsman(name){
+batsmen.push({name:name,runs:0,balls:0,fours:0,sixes:0,status:"Batting"})
+}
+
+function addBowler(name){
+
+let existing=bowlers.findIndex(b=>b.name===name)
+
+if(existing!=-1){
+currentBowler=existing
+return
+}
+
+bowlers.push({name:name,runs:0,balls:0,wkts:0})
+currentBowler=bowlers.length-1
+
+}
+
+
+function saveHistory(){
+
+history.push(JSON.stringify({
+runs,
+wickets,
+balls,
+batsmen,
+bowlers,
+striker,
+nonStriker,
+timeline,
+partnership,
+partnershipBalls
+}))
+
+}
+function updateTimeline(t){
+
+timeline.push(t)
+
+if(timeline.length>120) timeline.shift()
+
+let html=""
+
+timeline.forEach(b=>{
+
+let cls="dot"
+
+if(b=="W") cls="wicketBall"
+else if(b=="." || b== 0) cls="dot"
+else if(b==4) cls="four"
+else if(b==6) cls="six"
+else if(b>0) cls="run"
+
+html+=`<span class="ball ${cls}">${b}</span>`
+
+})
+
+document.getElementById("timeline").innerHTML=html
+
+}
+function run(r){
+
+if(wickets>=10){
+alert("All Out")
+return
+}
+
+if(waitingForBatsman) return alert("Add batsman")
+
+saveHistory()
+
+runs+=r
+balls++
+partnership+=r
+partnershipBalls++
+let bat=batsmen[striker]
+
+bat.runs+=r
+bat.balls++
+
+if(r==4) bat.fours++
+if(r==6) bat.sixes++
+
+bowlers[currentBowler].runs+=r
+bowlers[currentBowler].balls++
+
+if(r%2==1) swapStrike()
+
+updateTimeline(r===0?".":r)
+
+checkOver()
+
+
+updateAll()
+
+}
+
+function wicket(){
+
+if(wickets>=10){
+alert("All Out")
+return
+}
+
+
+saveHistory()
+
+wickets++
+balls++
+
+updateTimeline("W")
+
+batsmen[striker].balls++
+batsmen[striker].status="Out ("+document.getElementById("outType").value+")"
+
+bowlers[currentBowler].wkts++
+bowlers[currentBowler].balls++
+
+waitingForBatsman=true
+showBatsmanPopup()
+partnership=0
+
+partnershipBalls=0
+
+checkOver()
+
+updateAll()
+
+}
+function showBatsmanPopup(){
+
+document.getElementById("batsmanPopup").style.display="flex"
+
+document.getElementById("popupBatsmanName").focus()
+
+}
+
+function confirmNewBatsman(){
+
+let name=document.getElementById("popupBatsmanName").value
+
+if(!name) return alert("Enter batsman name")
+
+addBatsman(name)
+
+striker=batsmen.length-1
+
+waitingForBatsman=false
+
+document.getElementById("popupBatsmanName").value=""
+
+document.getElementById("batsmanPopup").style.display="none"
+
+updateAll()
+
+}
+
+function extra(type){
+
+saveHistory()
+
+let r=parseInt(prompt("Runs taken"))||0
+
+if(type=="wide"||type=="noball"){
+if(r%2==1) swapStrike()
+runs+=r+1
+bowlers[currentBowler].runs+=r+1
+updateTimeline(type=="wide"?"Wd":"Nb")
+
+}
+
+else{
+
+runs+=r
+balls++
+partnership+=r
+partnershipBalls++
+
+bowlers[currentBowler].balls++
+updateTimeline(type=="bye"?"B":"Lb")
+
+}
+
+if(r%2==1) swapStrike()
+
+updateAll()
+
+}
+
+function undoBall(){
+
+if(history.length==0) return
+
+let last=JSON.parse(history.pop())
+
+runs=last.runs
+wickets=last.wickets
+balls=last.balls
+batsmen=last.batsmen
+bowlers=last.bowlers
+striker=last.striker
+nonStriker=last.nonStriker
+timeline=[...last.timeline]
+partnership=last.partnership
+partnershipBalls = last.partnershipBalls
+updateAll()
+
+}
+
+function addNewBatsman(){
+
+if(!waitingForBatsman) return
+
+let name=document.getElementById("newbat").value
+
+if(!name) return alert("Enter batsman name")
+
+addBatsman(name)
+
+striker=batsmen.length-1
+
+waitingForBatsman=false
+
+document.getElementById("newbat").value=""
+
+updateAll()
+
+}
+
+function swapStrike(){
+let t=striker
+striker=nonStriker
+nonStriker=t
+}
+
+function checkOver(){
+
+if(balls%6==0){
+
+swapStrike()
+
+setTimeout(()=>{
+let newBowler=prompt("New Bowler")
+if(newBowler) addBowler(newBowler)
+updateBowlerTable()
+},100)
+
+}
+
+}
+
+function updateScore(){
+
+document.getElementById("runs").innerText=runs
+document.getElementById("wkts").innerText=wickets
+
+let o=Math.floor(balls/6)
+let b=balls%6
+let oversDecimal = balls/6
+
+let rr = oversDecimal>0 ? (runs/oversDecimal).toFixed(2) : 0
+
+document.getElementById("runrate").innerText =
+"Current RR: " + rr
+
+// projected score for 20 overs (can change later)
+let projected = Math.round(rr * 20)
+
+document.getElementById("projected").innerText =
+"Projected Score: " + projected 
+document.getElementById("overs").innerText=o+"."+b
+
+document.getElementById("partnership").innerText =
+"Partnership: "+partnership+" ("+partnershipBalls+" balls)"
+
+}
+
+function renderTable(){
+
+let table=document.getElementById("batTable")
+
+table.innerHTML=`<tr>
+<th>Name</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th><th>Status</th></tr>`
+
+batsmen.forEach((b,i)=>{
+
+let sr=b.balls?((b.runs/b.balls)*100).toFixed(2):0
+
+let status=b.status
+
+if(i==striker && b.status=="Batting") status="Striker"
+if(i==nonStriker && b.status=="Batting") status="Non‑Striker"
+
+let highlight=""
+
+if(i==striker) highlight="style='background:#1d4ed8'"
+if(i==nonStriker) highlight="style='background:#334155'"
+
+table.innerHTML+=`
+<tr ${highlight}>
+<td>${b.name}</td>
+<td>${b.runs}</td>
+<td>${b.balls}</td>
+<td>${b.fours}</td>
+<td>${b.sixes}</td>
+<td>${sr}</td>
+<td>${status}</td>
+</tr>`
+
+})
+
+}
+
+function updateBowlerTable(){
+
+let table=document.getElementById("bowlerTable")
+
+table.innerHTML=`<tr>
+<th>Name</th><th>Overs</th><th>Runs</th><th>Wickets</th><th>Eco</th></tr>`
+
+bowlers.forEach(b=>{
+
+let overs=Math.floor(b.balls/6)+"."+b.balls%6
+let eco=(b.runs/(b.balls/6||1)).toFixed(2)
+
+table.innerHTML+=`
+<tr>
+<td>${b.name}</td>
+<td>${overs}</td>
+<td>${b.runs}</td>
+<td>${b.wkts}</td>
+<td>${eco}</td>
+</tr>`
+
+})
+
+}
+function checkMatchEnd(){
+
+if(wickets>=10){
+
+setTimeout(()=>{
+alert("🏆 Innings Complete\nScore: "+runs+"/"+wickets)
+},300)
+
+}
+
+}
+function updateAll(){
+
+updateScore()
+renderTable()
+updateBowlerTable()
+checkMatchEnd()
+
+
+autoSave()
+
+}
+
+function autoSave(){
+
+localStorage.setItem("hitrackMatch",JSON.stringify({
+runs,wickets,balls,batsmen,bowlers,striker,nonStriker,timeline,partnership,partnershipBalls
+}))
+
+}
+
+function saveMatch(){autoSave();alert("Match Saved")}
+
+function loadMatch(){
+
+let d=JSON.parse(localStorage.getItem("hitrackMatch"))
+
+if(!d) return alert("No saved match")
+
+runs=d.runs
+wickets=d.wickets
+balls=d.balls
+batsmen=d.batsmen
+bowlers=d.bowlers
+striker=d.striker
+nonStriker=d.nonStriker
+timeline = d.timeline || []
+partnership=d.partnership
+partnershipBalls = d.partnershipBalls || 0
+updateTimelineDisplay()
+
+
+
+updateAll()
+
+}
+function updateTimelineDisplay(){
+
+let html=""
+
+timeline.forEach(b=>{
+
+let cls="dot"
+
+if(b=="W") cls="wicketBall"
+else if(b=="." || b==0) cls="dot"
+else if(b==4) cls="four"
+else if(b==6) cls="six"
+else if(b>0) cls="run"
+
+html+=`<span class="ball ${cls}">${b}</span>`
+
+})
+
+document.getElementById("timeline").innerHTML=html
+
+}
+
+
+
+function openViewer(){
+
+let win=window.open()
+
+win.document.write(`
+<h1 id="score"></h1>
+
+<script>
+
+setInterval(()=>{
+
+let data=localStorage.getItem("hitrackMatch")
+
+if(data){
+
+let d=JSON.parse(data)
+
+document.getElementById("score").innerText =
+d.runs + "/" + d.wickets + " (" +
+Math.floor(d.balls/6) + "." +
+(d.balls%6) + ")"
+
+}
+
+},1000)
+
+<\/script>
+
+`)
+
+}
+// ======================
+// TOURNAMENT SYSTEM
+// ======================
+
+let tournaments = JSON.parse(localStorage.getItem("hitrackTournaments")) || []
+
+function createTournament(){
+
+let name = document.getElementById("tournamentName").value
+
+if(!name) return alert("Enter tournament name")
+
+let t = {
+name:name,
+matches:[]
+}
+
+tournaments.push(t)
+
+localStorage.setItem("hitrackTournaments",JSON.stringify(tournaments))
+
+document.getElementById("tournamentName").value=""
+
+loadTournaments()
+
+}
+
+function loadTournaments(){
+
+let list=document.getElementById("tournamentList")
+let select=document.getElementById("tournamentSelect")
+
+list.innerHTML=""
+select.innerHTML=""
+
+tournaments.forEach((t,i)=>{
+
+list.innerHTML+=`<li>${t.name}</li>`
+
+select.innerHTML+=`<option value="${i}">${t.name}</option>`
+
+})
+
+}
+
+function createMatch(){
+
+let tIndex=document.getElementById("tournamentSelect").value
+
+if(tIndex==="") return alert("Select tournament")
+
+let teamA=document.getElementById("teamA").value
+let teamB=document.getElementById("teamB").value
+
+if(!teamA || !teamB) return alert("Enter teams")
+
+let match={
+teamA:teamA,
+teamB:teamB,
+score:"0/0"
+}
+
+tournaments[tIndex].matches.push(match)
+
+localStorage.setItem("hitrackTournaments",JSON.stringify(tournaments))
+
+alert("Match Created")
+
+document.getElementById("teamA").value=""
+document.getElementById("teamB").value=""
+
+loadTournaments()
+
+}
+
+loadTournaments()
+
+</script>
+
+</body>
+</html>

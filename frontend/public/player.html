@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Player Profile</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+padding:40px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+background:#1e293b;
+padding:30px;
+border-radius:10px;
+}
+
+img{
+width:140px;
+border-radius:50%;
+margin-bottom:10px;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #444;
+}
+
+.title{
+text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div id="playerInfo" class="title"></div>
+
+<table id="statsTable"></table>
+
+</div>
+
+<script>
+
+const params=new URLSearchParams(window.location.search)
+const playerId=params.get("id")
+
+async function loadPlayer(){
+
+const res=await fetch(`/api/player/${playerId}`)
+const p=await res.json()
+
+document.getElementById("playerInfo").innerHTML=`
+
+<img src="${p.photo || 'https://via.placeholder.com/140'}">
+
+<h1>${p.name}</h1>
+
+<p>
+Team: ${p.team} |
+Age: ${p.age} |
+Type: ${p.playerType}
+</p>
+
+`
+
+document.getElementById("statsTable").innerHTML=`
+
+<tr><td>Matches</td><td>${p.matches || 0}</td></tr>
+
+<tr><td>Runs</td><td>${p.runs || 0}</td></tr>
+
+<tr><td>Highest Score</td><td>${p.highestScore || 0}</td></tr>
+
+<tr><td>Batting Average</td><td>${p.battingAverage || 0}</td></tr>
+
+<tr><td>Strike Rate</td><td>${p.strikeRate || 0}</td></tr>
+
+<tr><td>50s</td><td>${p.fifties || 0}</td></tr>
+
+<tr><td>100s</td><td>${p.hundreds || 0}</td></tr>
+
+<tr><td>Wickets</td><td>${p.wickets || 0}</td></tr>
+
+<tr><td>Economy</td><td>${p.economy || 0}</td></tr>
+
+<tr><td>Best Bowling</td><td>${p.bestBowling || "0/0"}</td></tr>
+
+<tr><td>IPL Runs</td><td>${p.iplRuns || 0}</td></tr>
+
+<tr><td>International Runs</td><td>${p.internationalRuns || 0}</td></tr>
+
+<tr><td>T20 Runs</td><td>${p.t20Runs || 0}</td></tr>
+
+`
+
+}
+
+loadPlayer()
+
+</script>
+
+</body>
+</html>

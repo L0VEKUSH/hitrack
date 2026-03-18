@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Points Table</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+width:80%;
+background:#1e293b;
+}
+
+th,td{
+padding:12px;
+border:1px solid #334155;
+}
+
+th{
+background:#009270;
+}
+
+tr:hover{
+background:#334155;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🏆 Points Table</h1>
+
+<table>
+
+<thead>
+<tr>
+<th>Pos</th>
+<th>Team</th>
+<th>P</th>
+<th>W</th>
+<th>L</th>
+<th>Pts</th>
+</tr>
+</thead>
+
+<tbody id="table"></tbody>
+
+</table>
+
+<script>
+
+async function loadPoints(){
+
+let res = await fetch("/points-table")
+let teams = await res.json()
+
+let html=""
+
+teams.forEach((t,i)=>{
+
+html+=`
+<tr>
+<td>${i+1}</td>
+<td>${t.name}</td>
+<td>${t.matches}</td>
+<td>${t.wins}</td>
+<td>${t.loss}</td>
+<td>${t.points}</td>
+</tr>
+`
+
+})
+
+document.getElementById("table").innerHTML=html
+
+}
+
+loadPoints()
+
+</script>
+
+</body>
+</html>

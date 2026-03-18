@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>HiTrack Tournament</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+.container{
+display:flex;
+justify-content:space-around;
+flex-wrap:wrap;
+}
+
+.card{
+background:#1e293b;
+padding:20px;
+margin:20px;
+border-radius:10px;
+width:400px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:8px;
+border:1px solid #334155;
+}
+
+th{
+background:#009270;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🏏 HiTrack Tournament Dashboard</h1>
+
+<div class="container">
+
+<div class="card">
+
+<h2>🏆 Points Table</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Team</th>
+<th>P</th>
+<th>W</th>
+<th>Pts</th>
+</tr>
+</thead>
+
+<tbody id="points"></tbody>
+
+</table>
+
+</div>
+
+
+<div class="card">
+
+<h2>🟠 Orange Cap</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Player</th>
+<th>Runs</th>
+</tr>
+</thead>
+
+<tbody id="orange"></tbody>
+
+</table>
+
+</div>
+
+
+<div class="card">
+
+<h2>🟣 Purple Cap</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Bowler</th>
+<th>Wickets</th>
+</tr>
+</thead>
+
+<tbody id="purple"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+async function loadPoints(){
+
+let res = await fetch("/points-table")
+if(!res.ok) return
+let data = await res.json()
+
+let html=""
+
+data.forEach(t=>{
+html+=`
+<tr>
+<td>${t.name}</td>
+<td>${t.matches}</td>
+<td>${t.wins}</td>
+<td>${t.points}</td>
+</tr>
+`
+})
+
+document.getElementById("points").innerHTML=html
+
+}
+
+async function loadOrange(){
+
+let res = await fetch("/orange-cap")
+let data = await res.json()
+
+let html=""
+
+data.slice(0,5).forEach(p=>{
+html+=`
+<tr>
+<td>${p.name}</td>
+<td>${p.runs}</td>
+</tr>
+`
+})
+
+document.getElementById("orange").innerHTML=html
+
+}
+
+async function loadPurple(){
+
+let res = await fetch("/purple-cap")
+let data = await res.json()
+
+let html=""
+
+data.slice(0,5).forEach(p=>{
+html+=`
+<tr>
+<td>${p.name}</td>
+<td>${p.wkts}</td>
+</tr>
+`
+})
+
+document.getElementById("purple").innerHTML=html
+
+}
+
+loadPoints()
+loadOrange()
+loadPurple()
+setInterval(()=>{
+loadPoints()
+loadOrange()
+loadPurple()
+},5000)
+</script>
+
+</body>
+</html>

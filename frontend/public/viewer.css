@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0;
+    text-align: center;
+}
+
+h1 {
+    background: #008000;
+    color: white;
+    padding: 15px;
+    margin: 0;
+}
+
+.match-container{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+padding:20px;
+}
+
+.match-card{
+background:#1e293b;
+padding:20px;
+border-radius:10px;
+text-align:center;
+box-shadow:0 0 10px rgba(0,0,0,0.5);
+}
+
+.match-card h2{
+margin-bottom:10px;
+}
+
+.score{
+font-size:28px;
+font-weight:bold;
+color:#22c55e;
+}
+
+.live{
+background:red;
+padding:3px 8px;
+border-radius:5px;
+font-size:12px;
+margin-left:10px;
+}
+
+button{
+margin-top:10px;
+padding:8px 15px;
+border:none;
+background:#2563eb;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+@keyframes blink {
+    0% {opacity: 1;}
+    50% {opacity: 0.3;}
+    100% {opacity: 1;}
+}
+
+.score {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+button {
+    padding: 8px 15px;
+    background: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #0056b3;
+}
